@@ -22,7 +22,7 @@ from app.ml.anomaly_detector import detect_income_anomalies, get_anomaly_severit
 from app.routes.auth import get_current_user
 
 router = APIRouter(tags=["upload"])
-TEMP_DIR = "temp_uploads"
+TEMP_DIR = os.getenv("TEMP", "/tmp")
 os.makedirs(TEMP_DIR, exist_ok=True)
 
 
@@ -79,7 +79,7 @@ async def upload_statement(file: UploadFile = File(...), user=Depends(get_curren
     db = get_supabase()
 
     # ── Save to temp ────────────────────────────────────────────
-    temp_path = f"{TEMP_DIR}/{uuid.uuid4()}.pdf"
+    temp_path = os.path.join(TEMP_DIR, f"{uuid.uuid4()}.pdf")
     with open(temp_path, "wb") as f:
         f.write(content)
 
