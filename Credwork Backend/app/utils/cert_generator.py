@@ -47,7 +47,7 @@ def _should_regenerate(worker_id: str, new_score: int, new_avg: int, db) -> tupl
     return False, current["version"]
 
 
-async def generate_certificate(worker_id: str, gigscore_result: dict, db) -> str | None:
+async def generate_certificate(worker_id: str, gigscore_result: dict, db, mode: str = "gig") -> str | None:
     """
     Generates a PDF certificate for a worker if thresholds are met.
     Returns cert_id if generated, None otherwise.
@@ -104,13 +104,16 @@ async def generate_certificate(worker_id: str, gigscore_result: dict, db) -> str
     styles = getSampleStyleSheet()
     story = []
 
-    # Header
+    # Header — changes based on mode
+    cert_title = "Gig Income Verification Certificate" if mode == "gig" else "Cash-Flow Income Certificate"
+    score_label_text = "GigScore" if mode == "gig" else "Cash-Flow Score"
+
     story.append(Paragraph(
         "<font color='#10B981'><b>Credwork</b></font>",
         ParagraphStyle("brand", fontSize=28, spaceAfter=4)
     ))
     story.append(Paragraph(
-        "Income Verification Certificate",
+        cert_title,
         ParagraphStyle("title", fontSize=16, textColor=DARK_GREY, spaceAfter=2)
     ))
     story.append(Paragraph(
@@ -124,11 +127,11 @@ async def generate_certificate(worker_id: str, gigscore_result: dict, db) -> str
     story.append(Paragraph(f"{worker['city']} &nbsp;|&nbsp; Member since {worker['created_at'][:7]}", styles["Normal"]))
     story.append(Spacer(1, 16))
 
-    # GigScore box
+    # Score box
     score_label_color = "#10B981" if gigscore_result["score"] >= 70 else "#F59E0B" if gigscore_result["score"] >= 55 else "#EF4444"
     story.append(Table(
         [[
-            f"GigScore: {gigscore_result['score']}/100",
+            f"{score_label_text}: {gigscore_result['score']}/100",
             gigscore_result["label"],
             f"₹{monthly_avg:,}/month avg"
         ]],
@@ -145,6 +148,13 @@ async def generate_certificate(worker_id: str, gigscore_result: dict, db) -> str
         ])
     ))
     story.append(Spacer(1, 20))
+
+    # Generic mode note
+    if mode == "generic":
+        story.append(Paragraph(
+            "<i>No known gig platform payouts were detected. This certificate is based on all credited income only.</i>",
+            ParagraphStyle("generic_note", fontSize=9, textColor=DARK_GREY, spaceAfter=12)
+        ))
 
     # Monthly breakdown table
     story.append(Paragraph("<b>Verified Income Breakdown</b>", styles["Heading3"]))
@@ -224,7 +234,8 @@ async def generate_certificate(worker_id: str, gigscore_result: dict, db) -> str
         "gigscore": gigscore_result["score"],
         "gigscore_label": gigscore_result["label"],
         "months_included": months_included,
-        "pdf_url": public_url
+        "pdf_url": public_url,
+        "mode": mode
     }).execute()
 
     return cert_id

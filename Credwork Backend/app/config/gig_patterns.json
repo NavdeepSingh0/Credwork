@@ -1,0 +1,92 @@
+{
+  "zomato": {
+    "vpas": [
+      "zomato@upi",
+      "zomato@icici",
+      "zomato@hdfcbank",
+      "zomato@kotak",
+      "zomatoonline@icici"
+    ],
+    "keywords": [
+      "zomato media",
+      "zomato private ltd",
+      "zomato w1 earning",
+      "zomato w2 earning",
+      "zomato w3 earning",
+      "zomato w4 earning",
+      "zoma000",
+      "zomato ltd"
+    ]
+  },
+
+  "blinkit": {
+    "vpas": [
+      "blinkit@icici",
+      "grofers@icici",
+      "blinkit@yesbank"
+    ],
+    "keywords": [
+      "blinkit",
+      "blinkit grofers",
+      "grofers",
+      "blink000",
+      "blinkit commerce"
+    ]
+  },
+
+  "swiggy": {
+    "vpas": [
+      "swiggy@icici",
+      "swiggy@yesbank",
+      "swiggy@ybl",
+      "swiggyit@icici",
+      "eazypay@icici"
+    ],
+    "keywords": [
+      "swiggy",
+      "swiggy food",
+      "swiggy instamart",
+      "swiggy technologies"
+    ]
+  },
+
+  "rides": {
+    "vpas": [
+      "uber@axis",
+      "uber@hdfcbank",
+      "uber@icici",
+      "uberdriver@icici",
+      "ola@icici",
+      "olacabs@icici",
+      "rapido@ybl",
+      "rapido@icici",
+      "roppen@icici",
+      "rapidobikeapp@icici"
+    ],
+    "keywords": [
+      "uber india",
+      "ola cabs",
+      "rapido",
+      "roppen transportation"
+    ]
+  },
+
+  "other_gig": {
+    "vpas": [
+      "zepto@icici",
+      "kiranaclub@icici",
+      "urbanclap@icici",
+      "urbancompany@icici",
+      "dunzo@icici",
+      "dunzodaily@icici"
+    ],
+    "keywords": [
+      "zepto",
+      "bigbasket",
+      "urban company",
+      "urbanclap",
+      "dunzo",
+      "porter"
+    ]
+  }
+}

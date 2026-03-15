@@ -65,7 +65,9 @@ async def get_certificate(cert_id: str, user=Depends(get_current_user)):
     )
     if not result.data:
         raise HTTPException(404, "Certificate not found.")
-    return _format_cert(result.data[0])
+    cert = _format_cert(result.data[0])
+    cert["worker_name"] = user.get("full_name", "User")
+    return cert
 
 
 @router.get("/verify/{cert_id}")
