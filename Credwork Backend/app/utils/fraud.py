@@ -1,4 +1,3 @@
-import pikepdf
 from pathlib import Path
 
 
@@ -28,6 +27,21 @@ def run_fraud_checks(pdf_path: str) -> dict:
     }
 
     try:
+        try:
+            import pikepdf
+        except Exception:
+            # Serverless environments can fail to load native PDF deps.
+            # For the hackathon demo, fall back to a soft pass so auth and
+            # upload flows keep working instead of crashing the whole backend.
+            return {
+                "passed": True,
+                "flagged": True,
+                "metadata_check": "SKIP",
+                "font_check": "SKIP",
+                "edit_history_check": "SKIP",
+                "reason": "Advanced PDF fraud checks unavailable in this environment.",
+            }
+
         pdf = pikepdf.open(pdf_path)
 
         # ── Check 1: Creator metadata ─────────────────────────

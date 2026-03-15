@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import os
 
 from app.routes import auth, upload, worker, certificates, household, settings, admin, domestic
 
@@ -19,7 +18,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Certificates are now served from Supabase Storage — no local dir needed in prod
+# Certificates are served from Supabase Storage.
+# Avoid creating local directories at import time because Vercel only allows
+# runtime writes under /tmp and a write here can crash cold starts.
 
 # Register all routers
 app.include_router(auth.router)

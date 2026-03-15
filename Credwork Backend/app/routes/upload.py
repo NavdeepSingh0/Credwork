@@ -13,17 +13,38 @@ import os
 import uuid
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from app.config.database import get_supabase
-from app.utils.fraud import run_fraud_checks
-from app.utils.vpa_parser import extract_all_credits, classify_transactions, aggregate_by_month
-from app.utils.gigscore import calculate_gigscore
-from app.utils.conflict_resolver import resolve_and_save_income
-from app.utils.cert_generator import generate_certificate
-from app.ml.anomaly_detector import detect_income_anomalies, get_anomaly_severity
 from app.routes.auth import get_current_user
 
 router = APIRouter(tags=["upload"])
 TEMP_DIR = os.getenv("TEMP", "/tmp")
 os.makedirs(TEMP_DIR, exist_ok=True)
+
+
+def _load_upload_dependencies():
+    # Import heavy PDF/ML modules lazily so a serverless cold start can still
+    # boot the API even if optional native deps are unavailable.
+    from app.utils.fraud import run_fraud_checks
+    from app.utils.vpa_parser import (
+        extract_all_credits,
+        classify_transactions,
+        aggregate_by_month,
+    )
+    from app.utils.gigscore import calculate_gigscore
+    from app.utils.conflict_resolver import resolve_and_save_income
+    from app.utils.cert_generator import generate_certificate
+    from app.ml.anomaly_detector import detect_income_anomalies, get_anomaly_severity
+
+    return {
+        "run_fraud_checks": run_fraud_checks,
+        "extract_all_credits": extract_all_credits,
+        "classify_transactions": classify_transactions,
+        "aggregate_by_month": aggregate_by_month,
+        "calculate_gigscore": calculate_gigscore,
+        "resolve_and_save_income": resolve_and_save_income,
+        "generate_certificate": generate_certificate,
+        "detect_income_anomalies": detect_income_anomalies,
+        "get_anomaly_severity": get_anomaly_severity,
+    }
 
 
 def _build_upload_response(upload_id: str, upload_row: dict, gigscore: int = 0,
@@ -66,6 +87,8 @@ def _build_upload_response(upload_id: str, upload_row: dict, gigscore: int = 0,
 
 @router.post("/upload/statement")
 async def upload_statement(file: UploadFile = File(...), user=Depends(get_current_user)):
+    deps = _load_upload_dependencies()
+
     if user["role"] != "gig_worker":
         raise HTTPException(403, "Only gig workers can upload bank statements.")
 
@@ -93,7 +116,7 @@ async def upload_statement(file: UploadFile = File(...), user=Depends(get_curren
 
     try:
         # ── Fraud check ──────────────────────────────────────
-        fraud_result = run_fraud_checks(temp_path)
+        fraud_result = deps["run_fraud_checks"](temp_path)
 
         if not fraud_result["passed"]:
             os.remove(temp_path)
@@ -112,8 +135,8 @@ async def upload_statement(file: UploadFile = File(...), user=Depends(get_curren
             })
 
         # ── Extract ALL credits + classify ────────────────────
-        all_txns = extract_all_credits(temp_path)
-        gig_txns, credit_txns = classify_transactions(all_txns)
+        all_txns = deps["extract_all_credits"](temp_path)
+        gig_txns, credit_txns = deps["classify_transactions"](all_txns)
 
         # ── Mode Decision ─────────────────────────────────────
         if gig_txns:
@@ -140,18 +163,18 @@ async def upload_statement(file: UploadFile = File(...), user=Depends(get_curren
             })
 
         # ── Aggregate income ──────────────────────────────────
-        by_platform, monthly_totals = aggregate_by_month(income_txns)
+        by_platform, monthly_totals = deps["aggregate_by_month"](income_txns)
 
         # ── Resolve conflicts & save income entries ───────────
-        await resolve_and_save_income(user["id"], by_platform, upload_id, db)
+        await deps["resolve_and_save_income"](user["id"], by_platform, upload_id, db)
 
         # ── Cleanup temp file ─────────────────────────────────
         os.remove(temp_path)
 
         # ── ML Anomaly detection ──────────────────────────────
         monthly_amounts = [monthly_totals.get(m, 0) for m in sorted(monthly_totals.keys())]
-        anomaly_result = detect_income_anomalies(monthly_amounts)
-        severity = get_anomaly_severity(anomaly_result)
+        anomaly_result = deps["detect_income_anomalies"](monthly_amounts)
+        severity = deps["get_anomaly_severity"](anomaly_result)
 
         if severity == "high":
             try:
@@ -176,13 +199,13 @@ async def upload_statement(file: UploadFile = File(...), user=Depends(get_curren
             print(f"[upload] Could not save ML results (columns may be missing): {ml_err}")
 
         # ── GigScore (works for both modes — measures consistency) ──
-        gigscore_result = calculate_gigscore(monthly_totals)
+        gigscore_result = deps["calculate_gigscore"](monthly_totals)
 
         # ── Certificate ───────────────────────────────────────
         months_count = len([m for m, amt in monthly_totals.items() if amt > 0])
         cert_id = None
         if months_count >= 3:
-            cert_id = await generate_certificate(user["id"], gigscore_result, db, mode=mode)
+            cert_id = await deps["generate_certificate"](user["id"], gigscore_result, db, mode=mode)
 
         # ── Build summary fields ──────────────────────────────
         platforms_found = sorted(set(t["platform"] for t in income_txns if t.get("platform")))

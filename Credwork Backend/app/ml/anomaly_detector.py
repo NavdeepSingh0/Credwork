@@ -1,5 +1,3 @@
-import numpy as np
-from sklearn.ensemble import IsolationForest
 from typing import List, Dict, Any
 
 
@@ -38,6 +36,20 @@ def detect_income_anomalies(monthly_amounts: List[float]) -> Dict[str, Any]:
             "reason": None,
             "skipped": True,
             "skip_reason": "Insufficient data — need at least 3 months"
+        }
+
+    try:
+        import numpy as np
+        from sklearn.ensemble import IsolationForest
+    except Exception:
+        return {
+            "anomaly_detected": False,
+            "anomalous_indices": [],
+            "anomaly_scores": [],
+            "model_confidence": 0.0,
+            "reason": None,
+            "skipped": True,
+            "skip_reason": "ML anomaly detection unavailable in this environment"
         }
 
     amounts = np.array(monthly_amounts, dtype=float).reshape(-1, 1)
