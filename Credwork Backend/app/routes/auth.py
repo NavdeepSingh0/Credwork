@@ -85,20 +85,31 @@ async def send_otp(body: SendOTPRequest):
     otp = generate_otp()
     otp_hashed = hash_otp(otp, phone)
 
-    # Store OTP session in Supabase
-    db.table("otp_sessions").insert({
-        "phone": phone,
-        "otp_hash": otp_hashed,
-        "expires_at": (datetime.utcnow() + timedelta(minutes=5)).isoformat(),
-        "verified": False,
-    }).execute()
+    # Store OTP session in Supabase.
+    # For the hackathon demo, do not fail the request if session persistence
+    # is broken in production - the 123456 backdoor can still complete auth.
+    session_store_ok = True
+    try:
+        db.table("otp_sessions").insert({
+            "phone": phone,
+            "otp_hash": otp_hashed,
+            "expires_at": (datetime.utcnow() + timedelta(minutes=5)).isoformat(),
+            "verified": False,
+        }).execute()
+    except Exception as e:
+        session_store_ok = False
+        print(f"[AUTH] Could not store OTP session for {phone}: {e}")
 
     # Send OTP via Fast2SMS (production) or log to console (dev)
     # Backdoor OTP "123456" is always accepted in verify-otp regardless
     sms_result = await send_otp_sms(phone, otp)
 
     return {
-        "message": sms_result.message,
+        "message": (
+            sms_result.message
+            if session_store_ok
+            else f"{sms_result.message} Demo OTP 123456 is still available."
+        ),
         "expires_in": 300,
         "sms_mode": sms_result.mode,  # "production" or "stub" — helps frontend show hint
     }
@@ -110,6 +121,26 @@ async def send_otp(body: SendOTPRequest):
 async def verify_otp(body: VerifyOTPRequest):
     phone = body.phone.strip()
     db = get_supabase()
+
+    # Hackathon-safe fast path: allow the demo OTP to work even if otp_sessions
+    # is unavailable or failed to persist on Vercel.
+    if body.otp == "123456":
+        user_result = db.table("users").select("*").eq("phone", phone).execute()
+
+        if user_result.data:
+            user = user_result.data[0]
+            token = create_access_token(str(user["id"]), user["role"], user["phone"])
+            return {
+                "status": "existing_user",
+                "access_token": token,
+                "user": _user_to_response(user),
+            }
+
+        temp_token = create_access_token("temp", "temp", phone)
+        return {
+            "status": "new_user",
+            "temp_token": temp_token,
+        }
 
     # Fetch the most recent unverified OTP session for this phone
     result = (
@@ -132,10 +163,9 @@ async def verify_otp(body: VerifyOTPRequest):
         raise HTTPException(400, "OTP expired. Request a new one.")
 
     # Validate — real hash check OR backdoor "123456"
-    is_demo = body.otp == "123456"
     is_valid = verify_otp_hash(body.otp, phone, session["otp_hash"])
 
-    if not (is_valid or is_demo):
+    if not is_valid:
         raise HTTPException(400, "Invalid OTP.")
 
     # Mark OTP session as verified
