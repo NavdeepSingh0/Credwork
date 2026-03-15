@@ -19,8 +19,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Certificates are now served from Supabase Storage
-os.makedirs("certificates", exist_ok=True)  # Keep local fallback for dev
+# Certificates are now served from Supabase Storage — no local dir needed in prod
 
 # Register all routers
 app.include_router(auth.router)
