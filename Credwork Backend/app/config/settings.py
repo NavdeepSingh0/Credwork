@@ -1,11 +1,11 @@
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    supabase_url: str
-    supabase_key: str
-    supabase_service_key: str
+    supabase_url: str = ""
+    supabase_key: str = ""
+    supabase_service_key: str = ""
     
-    jwt_secret: str
+    jwt_secret: str = "fallback-secret-for-dev-only-do-not-use-in-prod"
     jwt_algorithm: str = "HS256"
     jwt_expiry_days: int = 30
     
