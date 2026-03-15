@@ -1,0 +1,3 @@
+DB insert error: {'message': "Could not find the 'photo_url' column of 'users' in the schema cache", 'code': 'PGRST204', 'hint': None, 'details': None}
+DB insert error: {'message': "Could not find the 'photo_url' column of 'users' in the schema cache", 'code': 'PGRST204', 'hint': None, 'details': None}
+DB insert error: {'message': "Could not find the 'photo_url' column of 'users' in the schema cache", 'code': 'PGRST204', 'hint': None, 'details': None}

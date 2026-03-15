@@ -1,0 +1,28 @@
+# Python backend
+Credwork Backend/.env
+Credwork Backend/__pycache__/
+Credwork Backend/**/__pycache__/
+Credwork Backend/*.pyc
+Credwork Backend/temp_uploads/
+Credwork Backend/certificates/
+Credwork Backend/.venv/
+Credwork Backend/venv/
+Credwork Backend/*.egg-info/
+
+# Node / React Native frontend
+credwork/node_modules/
+credwork/.expo/
+credwork/dist/
+credwork/build/
+credwork/.metro-cache/
+credwork/*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.user

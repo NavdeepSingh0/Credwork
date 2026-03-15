@@ -1,0 +1,1 @@
+{"columns": ["id", "household_id", "worker_id", "amount_inr", "payment_type", "payment_month", "status", "razorpay_order_id", "razorpay_payment_id", "created_at", "processed_at"]}

@@ -1,0 +1,1 @@
+"{'message': 'null value in column \"household_id\" of relation \"payments\" violates not-null constraint', 'code': '23502', 'hint': None, 'details': 'Failing row contains (61fefa86-833c-4520-b8e8-0f8d6bc6d8e1, null, null, 100, salary, 2025-01, pending, null, null, 2026-03-15 10:58:01.290549+00, null).'}"

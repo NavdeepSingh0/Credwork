@@ -1,0 +1,52 @@
+{
+  "version": "1.0",
+  "last_updated": "2025-03-12",
+  "note": "VPA matching is case-insensitive substring match. Add new VPAs as you discover them from real bank statements.",
+  "platforms": [
+    {
+      "name": "Swiggy",
+      "category": "delivery",
+      "vpas": ["swiggy@icici", "swiggy@yesbank", "swiggy@ybl", "delivery@swiggy", "swiggyit@icici", "eazypay@icici"]
+    },
+    {
+      "name": "Zomato",
+      "category": "delivery",
+      "vpas": ["zomato@icici", "zomato@hdfcbank", "zomato@kotak", "delivery@zomato", "zomatoonline@icici"]
+    },
+    {
+      "name": "Uber",
+      "category": "ride_hailing",
+      "vpas": ["uber@axis", "uber@hdfcbank", "uber@icici", "uberdriver@icici"]
+    },
+    {
+      "name": "Ola",
+      "category": "ride_hailing",
+      "vpas": ["ola@icici", "olacabs@icici", "ani@icici"]
+    },
+    {
+      "name": "Rapido",
+      "category": "ride_hailing",
+      "vpas": ["rapido@ybl", "rapido@icici", "roppen@icici", "rapidobikeapp@icici"]
+    },
+    {
+      "name": "Blinkit",
+      "category": "quick_commerce",
+      "vpas": ["blinkit@icici", "grofers@icici", "blinkit@yesbank"]
+    },
+    {
+      "name": "Zepto",
+      "category": "quick_commerce",
+      "vpas": ["zepto@icici", "kiranaclub@icici"]
+    },
+    {
+      "name": "Urban Company",
+      "category": "home_services",
+      "vpas": ["urbanclap@icici", "urbancompany@icici", "uc@razorpay"]
+    },
+    {
+      "name": "Dunzo",
+      "category": "delivery",
+      "vpas": ["dunzo@icici", "dunzodaily@icici"]
+    }
+  ]
+}
