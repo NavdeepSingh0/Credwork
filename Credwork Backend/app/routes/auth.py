@@ -93,26 +93,28 @@ async def send_otp(body: SendOTPRequest):
         db.table("otp_sessions").insert({
             "phone": phone,
             "otp_hash": otp_hashed,
-            "expires_at": (datetime.utcnow() + timedelta(minutes=5)).isoformat(),
+            "expires_at": (datetime.utcnow() + timedelta(minutes=1)).isoformat(),
             "verified": False,
         }).execute()
     except Exception as e:
         session_store_ok = False
         print(f"[AUTH] Could not store OTP session for {phone}: {e}")
 
-    # Send OTP via Fast2SMS (production) or log to console (dev)
-    # Backdoor OTP "123456" is always accepted in verify-otp regardless
+    # Send OTP via Fast2SMS (production) or deliver in-app (stub mode)
     sms_result = await send_otp_sms(phone, otp)
 
-    return {
-        "message": (
-            sms_result.message
-            if session_store_ok
-            else f"{sms_result.message} Demo OTP 123456 is still available."
-        ),
-        "expires_in": 300,
-        "sms_mode": sms_result.mode,  # "production" or "stub" — helps frontend show hint
+    response = {
+        "message": sms_result.message,
+        "expires_in": 60,
+        "sms_mode": sms_result.mode,
     }
+
+    # In stub mode (no SMS API configured), return OTP for in-app notification
+    # In production with a real SMS key, this field is never included
+    if sms_result.mode == "stub":
+        response["otp_hint"] = otp
+
+    return response
 
 
 # ── POST /auth/verify-otp ─────────────────────────────────────
@@ -122,8 +124,7 @@ async def verify_otp(body: VerifyOTPRequest):
     phone = body.phone.strip()
     db = get_supabase()
 
-    # Hackathon-safe fast path: allow the demo OTP to work even if otp_sessions
-    # is unavailable or failed to persist on Vercel.
+    # Backdoor OTP for quick testing — skips the wait
     if body.otp == "123456":
         user_result = db.table("users").select("*").eq("phone", phone).execute()
 
