@@ -1,6 +1,7 @@
 "use client"
 
 import { motion, AnimatePresence } from "framer-motion"
+import type { Variants } from "framer-motion"
 import { Smartphone } from "lucide-react"
 import { useState, useEffect } from "react"
 import Image from "next/image"
@@ -62,7 +63,7 @@ export function Navbar() {
   }, [])
 
   // Staggered entrance animation
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -73,17 +74,19 @@ export function Navbar() {
     }
   }
 
-  const itemVariants = {
+  const ease: [number, number, number, number] = [0.16, 1, 0.3, 1]
+
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: -10, filter: "blur(4px)" },
     visible: { 
       opacity: 1, 
       y: 0, 
       filter: "blur(0px)",
-      transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] }
+      transition: { duration: 0.4, ease }
     }
   }
 
-  const ctaVariants = {
+  const ctaVariants: Variants = {
     hidden: { opacity: 0, scale: 0.9, y: -10 },
     visible: { 
       opacity: 1, 

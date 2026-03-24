@@ -1,3 +1,4 @@
+import logging
 import asyncio
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
@@ -7,6 +8,7 @@ from app.models.household import AddWorkerRequest, MakePaymentRequest
 from app.utils.razorpay_sim import simulate_razorpay_webhook
 
 router = APIRouter(prefix="/household", tags=["household"])
+logger = logging.getLogger(__name__)
 
 
 def validate_payment_month(payment_month: str, worker_id: str, db) -> bool:
@@ -170,7 +172,7 @@ async def add_worker(body: AddWorkerRequest, user=Depends(get_current_user)):
         }).execute()
 
         # STUB: In production, send SMS invite here
-        print(f"📱 STUB: SMS invite sent to {body.worker_phone} to join Credwork")
+        logger.info("[household] SMS invite stub: worker_phone=%s", body.worker_phone)
 
         return {
             "status": "invited",

@@ -9,6 +9,7 @@ POST /upload/statement
 GET /upload/status/{upload_id}
   Same response shape so the polling fallback also works.
 """
+import logging
 import os
 import uuid
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
@@ -16,6 +17,7 @@ from app.config.database import get_supabase
 from app.routes.auth import get_current_user
 
 router = APIRouter(tags=["upload"])
+logger = logging.getLogger(__name__)
 TEMP_DIR = os.getenv("TEMP", "/tmp")
 os.makedirs(TEMP_DIR, exist_ok=True)
 
@@ -185,7 +187,7 @@ async def upload_statement(file: UploadFile = File(...), user=Depends(get_curren
                     "flag_reason": anomaly_result["reason"] or "ML model detected high-severity anomaly.",
                 }).execute()
             except Exception as ff_err:
-                print(f"[upload] Could not insert fraud flag (table may be missing): {ff_err}")
+                logger.warning("[upload] Could not insert fraud flag: %s", ff_err)
 
         # Store ML results on the upload record (columns may not exist yet)
         try:

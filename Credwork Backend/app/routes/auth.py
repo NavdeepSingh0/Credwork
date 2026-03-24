@@ -7,6 +7,7 @@ Endpoints:
   POST /auth/setup-profile  → creates user, returns access_token + user
   GET  /auth/me             → returns current user from token
 """
+import logging
 from datetime import datetime, timedelta
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -24,6 +25,7 @@ from app.models.auth import (
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 bearer_scheme = HTTPBearer(auto_error=False)
+logger = logging.getLogger(__name__)
 
 
 # ── Helpers ────────────────────────────────────────────────────
@@ -98,7 +100,7 @@ async def send_otp(body: SendOTPRequest):
         }).execute()
     except Exception as e:
         session_store_ok = False
-        print(f"[AUTH] Could not store OTP session for {phone}: {e}")
+        logger.error("[AUTH] Could not store OTP session for %s: %s", phone, e)
 
     # Send OTP via Fast2SMS (production) or deliver in-app (stub mode)
     sms_result = await send_otp_sms(phone, otp)
