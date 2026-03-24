@@ -7,7 +7,7 @@ app = FastAPI(
     title="Credwork API",
     description="Income verification for India's gig and domestic workers",
     version="1.0.0",
-    debug=True,
+    debug=False,
 )
 
 app.add_middleware(
