@@ -1,8 +1,8 @@
-# Workli Bank Statement Verification – Final Agreed Solution
+# Credwork Bank Statement Verification – Final Agreed Solution
 
 _Last updated: 15 March 2026_
 
-This document describes the **final, non‑gimmicky solution** for Workli’s bank‑statement based income verification, including:
+This document describes the **final, non‑gimmicky solution** for Credwork’s bank‑statement based income verification, including:
 
 - Behaviour for **any Indian bank statement** (not just gig workers)
 - A **two‑mode certificate model** (Gig Income vs Generic Cash‑Flow)
@@ -20,7 +20,7 @@ The goal is:
 
 ### 1.1 Two Certificate Modes
 
-Instead of a binary **"gig worker or error"**, Workli now has **two valid modes**, plus a true error state:
+Instead of a binary **"gig worker or error"**, Credwork now has **two valid modes**, plus a true error state:
 
 1. **Gig Income Certificate (mode = `gig`)**  
    Used when we detect **any transactions that look like payouts from gig / quick‑commerce / ride‑hailing platforms** (Swiggy, Zomato, Blinkit, etc.).
