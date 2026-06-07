@@ -202,7 +202,7 @@ Handles duplicate or conflicting transaction entries:
 
 ---
 
-## 🗄️ Database Schema
+##  Database Schema
 
 The application uses Supabase (PostgreSQL) with the following core tables:
 
@@ -220,7 +220,7 @@ See `supabase_schema.sql` for complete DDL statements.
 
 ---
 
-## 🧪 Testing
+##  Testing
 
 ### Run All Tests
 ```bash
@@ -241,7 +241,7 @@ pytest
 
 ---
 
-## 🌐 Deployment
+##  Deployment
 
 ### Backend (Vercel)
 ```bash
@@ -263,7 +263,7 @@ vercel deploy --prod
 
 ---
 
-## 🎨 Tech Stack
+##  Tech Stack
 
 ### Backend
 | Component | Technology |
@@ -289,7 +289,7 @@ vercel deploy --prod
 
 ---
 
-## 👥 User Roles
+##  User Roles
 
 ### Gig Worker
 - Uploads bank statements for income verification
@@ -313,7 +313,7 @@ vercel deploy --prod
 
 ---
 
-## 📝 Documentation
+##  Documentation
 
 Detailed documentation is available in the following files:
 
